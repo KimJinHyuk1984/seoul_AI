@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>서울교육 AI 종합계획 · VR 공간</title>
 
-<!-- Korean webfont (fallback to system Korean font if blocked) -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link rel="stylesheet"
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.min.css" />
@@ -14,18 +13,14 @@
   :root{ --cy:#38E1D6; --am:#FFB454; --ink:#EAF2FF; --bg:#05070f; }
   html,body{margin:0;height:100%;background:var(--bg);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);overflow:hidden;}
 
-  #intro{
-    position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  #intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
     background:radial-gradient(120% 120% at 50% 20%, rgba(18,42,77,.55), rgba(5,7,15,.92) 70%);
-    backdrop-filter:blur(2px);transition:opacity .6s ease;
-  }
+    backdrop-filter:blur(2px);transition:opacity .6s ease;}
   #intro.hide{opacity:0;pointer-events:none;}
-  .card{
-    width:min(560px,88vw);padding:34px 34px 30px;border-radius:22px;
+  .card{width:min(560px,88vw);padding:34px 34px 30px;border-radius:22px;
     background:linear-gradient(180deg, rgba(16,22,45,.92), rgba(9,13,28,.94));
     border:1px solid rgba(56,225,214,.35);
-    box-shadow:0 20px 60px rgba(0,0,0,.55), 0 0 40px rgba(56,225,214,.12) inset;
-  }
+    box-shadow:0 20px 60px rgba(0,0,0,.55), 0 0 40px rgba(56,225,214,.12) inset;}
   .eyebrow{font-size:14px;letter-spacing:.14em;color:var(--cy);font-weight:600;margin:0 0 10px;}
   .title{font-size:30px;font-weight:900;line-height:1.28;margin:0 0 6px;
     background:linear-gradient(100deg,var(--cy),var(--am));-webkit-background-clip:text;background-clip:text;color:transparent;}
@@ -40,6 +35,10 @@
   .go:hover{filter:brightness(1.06);transform:translateY(-1px);}
   .note{font-size:12.5px;color:rgba(180,198,232,.62);margin:14px 2px 0;line-height:1.5;}
   .note em{font-style:normal;color:var(--cy);font-weight:700;}
+  #dbg{position:fixed;left:10px;right:10px;bottom:10px;z-index:10000;display:none;
+    background:rgba(120,20,30,.94);color:#fff;font-size:12.5px;line-height:1.5;
+    padding:10px 12px;border-radius:10px;border:1px solid rgba(255,120,130,.6);
+    font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;max-height:38vh;overflow:auto;}
 </style>
 </head>
 <body>
@@ -57,9 +56,11 @@
         </ul>
       </div>
       <button class="go" id="startBtn">공간 둘러보기 시작</button>
-      <p class="note" id="introNote">VR 진입은 HTTPS 환경에서만 동작합니다. 퀘스트3에서 완전한 VR을 쓰려면 이 파일을 NAS 등에 올려 <em>https 주소</em>로 접속하세요.</p>
+      <p class="note" id="introNote">퀘스트3에서는 오른쪽 아래 고글 아이콘으로 VR에 입장할 수 있어요. (HTTPS 필요 · GitHub Pages는 자동 지원)</p>
     </div>
   </div>
+
+  <div id="dbg"></div>
 
   <a-scene
     background="color: #05070f"
@@ -84,9 +85,22 @@
   </a-scene>
 
 <script>
-/* WebXR 지원 여부 확인 호출이 iframe(권한 차단)에서 예외를 던져
-   씬 초기화가 멈추는 문제를 방지. 실제 XR 허용 환경(퀘스트3 등)에서는
-   원래 동작 그대로 VR 진입 버튼이 표시됩니다. */
+/* 화면 오류 표시기 */
+function showDbg(msg){
+  var d=document.getElementById('dbg');
+  if(!d) return;
+  d.style.display='block';
+  d.textContent='[오류] '+msg;
+}
+window.addEventListener('error',function(e){
+  showDbg((e && e.message ? e.message : '알 수 없는 오류') + (e && e.filename ? ('\n'+e.filename+':'+e.lineno) : ''));
+});
+window.addEventListener('unhandledrejection',function(e){
+  showDbg('Promise: '+(e && e.reason ? (e.reason.message||e.reason) : '알 수 없음'));
+});
+
+/* WebXR 지원 확인 호출이 차단 환경에서 예외를 던져 초기화가 멈추는 것 방지
+   (실제 퀘스트3 등 XR 허용 환경에서는 원래대로 VR 버튼 표시) */
 (function(){
   try{
     if(navigator.xr && navigator.xr.isSessionSupported){
@@ -99,45 +113,24 @@
   }catch(e){}
 })();
 
-/* ============================================================
-   실제 정책 내용 (서울시교육청 초중고 AI 교육 종합계획, 2025.12.23)
-   ============================================================ */
+/* ===== 실제 정책 내용 (서울시교육청 초중고 AI 교육 종합계획, 2025.12.23) ===== */
 const CY = '#38E1D6', AM = '#FFB454';
 const FF = '"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
 const VISION = '누구나! 안전하고 이롭게! 더 깊고 조화롭게! AI 시대의 주인으로';
 
 const PILLARS = [
   { num:'01', color:'#34D399', title:'AI 책임교육', eyebrow:'모든 학생의 안전하고 격차 없는',
-    points:[
-      'AI 기초소양·윤리·디지털 시민성 교육 강화',
-      '초5·중2·고1 AI·디지털 리터러시 진단검사',
-      '학습지원·특수교육·이주배경 학생 맞춤형 교육',
-      "3월 'AI·디지털 역량 교육 주간' 운영" ]},
+    points:['AI 기초소양·윤리·디지털 시민성 교육 강화','초5·중2·고1 AI·디지털 리터러시 진단검사','학습지원·특수교육·이주배경 학생 맞춤형 교육',"3월 'AI·디지털 역량 교육 주간' 운영"]},
   { num:'02', color:'#38BDF8', title:'수업·평가 혁신', eyebrow:'주도성과 사고력을 키우는 AI 기반',
-    points:[
-      "AI 맞춤형 교수학습 플랫폼 'SEN스쿨'",
-      'AI 활용 가이드라인 개발·배포',
-      "AI 서·논술형 평가지원시스템 '채움아이'",
-      '독서·인문학 교육 강화' ]},
+    points:["AI 맞춤형 교수학습 플랫폼 'SEN스쿨'",'AI 활용 가이드라인 개발·배포',"AI 서·논술형 평가지원시스템 '채움아이'",'독서·인문학 교육 강화']},
   { num:'03', color:'#A78BFA', title:'핵심인재 양성', eyebrow:'AI 시대를 선도할',
-    points:[
-      'AI교육센터 설립·운영',
-      '서울대·연세대·시립대·과기대 연계 심화 프로그램',
-      '과학고·영재학교·직업계고 교육과정 혁신',
-      '교사 GPU 딥러닝 실습 심화 연수' ]},
+    points:['AI교육센터 설립·운영','서울대·연세대·시립대·과기대 연계 심화 프로그램','과학고·영재학교·직업계고 교육과정 혁신','교사 GPU 딥러닝 실습 심화 연수']},
   { num:'04', color:'#FBBF24', title:'교사 전문성 강화', eyebrow:'학생의 성장을 이끄는',
-    points:[
-      '1교 1명 AI·에듀테크 선도교사 양성',
-      '전 교원 맞춤형 연수 (300여 과정 · 연 2만명↑)',
-      '학부모 인식 제고·역량 강화 지원' ]},
+    points:['1교 1명 AI·에듀테크 선도교사 양성','전 교원 맞춤형 연수 (300여 과정 · 연 2만명↑)','학부모 인식 제고·역량 강화 지원']},
   { num:'05', color:'#FB7185', title:'지원 체제·환경', eyebrow:'배움에 중심을 두는',
-    points:[
-      '16개 부서·26개 팀 협력 추진 체계',
-      '대학·민간 전문가·학부모 의견 수렴',
-      '배움 중심 인프라·환경 구축' ]},
+    points:['16개 부서·26개 팀 협력 추진 체계','대학·민간 전문가·학부모 의견 수렴','배움 중심 인프라·환경 구축']},
 ];
 
-/* ---------- canvas 유틸 ---------- */
 function hexA(hex,a){const n=parseInt(hex.slice(1),16);return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';}
 function roundRect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function wrapText(g,text,maxW){const out=[];let line='';for(const ch of text){const t=line+ch;if(g.measureText(t).width>maxW&&line){out.push(line);line=ch;}else line=t;}if(line)out.push(line);return out;}
@@ -147,22 +140,17 @@ function makePillarCanvas(cfg){
   const g=c.getContext('2d');g.clearRect(0,0,W,H);
   const pad=30,rr=38;
   roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);
-  const bg=g.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'rgba(16,22,45,0.95)');bg.addColorStop(1,'rgba(9,13,28,0.97)');
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'rgba(16,22,45,0.95)');bg.addColorStop(1,'rgba(9,13,28,0.97)');
   g.fillStyle=bg;g.fill();
   g.save();roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);g.clip();
-  const gl=g.createRadialGradient(W/2,pad,20,W/2,pad,560);
-  gl.addColorStop(0,hexA(cfg.color,0.30));gl.addColorStop(1,'rgba(0,0,0,0)');
+  const gl=g.createRadialGradient(W/2,pad,20,W/2,pad,560);gl.addColorStop(0,hexA(cfg.color,0.30));gl.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=gl;g.fillRect(0,0,W,H);g.restore();
-  g.save();g.shadowColor=cfg.color;g.shadowBlur=28;roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);
-  g.lineWidth=3;g.strokeStyle=cfg.color;g.stroke();g.restore();
-
+  g.save();g.shadowColor=cfg.color;g.shadowBlur=28;roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);g.lineWidth=3;g.strokeStyle=cfg.color;g.stroke();g.restore();
   g.textBaseline='alphabetic';
   g.font='900 100px '+FF;g.fillStyle=cfg.color;g.fillText(cfg.num,66,188);
   g.font='600 27px '+FF;g.fillStyle='rgba(200,216,248,0.78)';g.fillText(cfg.eyebrow,238,122);
   g.font='900 60px '+FF;g.fillStyle='#F2F7FF';g.fillText(cfg.title,238,186);
-  g.strokeStyle=hexA(cfg.color,0.5);g.lineWidth=2;
-  g.beginPath();g.moveTo(66,228);g.lineTo(W-66,228);g.stroke();
+  g.strokeStyle=hexA(cfg.color,0.5);g.lineWidth=2;g.beginPath();g.moveTo(66,228);g.lineTo(W-66,228);g.stroke();
   g.font='500 31px '+FF;
   let py=302;const lineH=44,gap=22,maxW=W-66-72;
   for(const pt of cfg.points){
@@ -174,32 +162,23 @@ function makePillarCanvas(cfg){
   }
   return c;
 }
-
 function makeVisionCanvas(){
   const W=1600,H=520,c=document.createElement('canvas');c.width=W;c.height=H;
   const g=c.getContext('2d');g.clearRect(0,0,W,H);
   const pad=26,rr=40;
   roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);
-  const bg=g.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'rgba(14,20,42,0.86)');bg.addColorStop(1,'rgba(8,12,26,0.9)');
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'rgba(14,20,42,0.86)');bg.addColorStop(1,'rgba(8,12,26,0.9)');
   g.fillStyle=bg;g.fill();
-  g.save();g.shadowColor=CY;g.shadowBlur=30;roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);
-  g.lineWidth=3;g.strokeStyle=hexA(CY,0.8);g.stroke();g.restore();
-
+  g.save();g.shadowColor=CY;g.shadowBlur=30;roundRect(g,pad,pad,W-2*pad,H-2*pad,rr);g.lineWidth=3;g.strokeStyle=hexA(CY,0.8);g.stroke();g.restore();
   g.textAlign='center';g.textBaseline='alphabetic';
-  g.font='600 34px '+FF;g.fillStyle=hexA(CY,0.9);
-  g.fillText('서울특별시교육청 · 초 · 중 · 고 AI 교육 종합계획',W/2,110);
+  g.font='600 34px '+FF;g.fillStyle=hexA(CY,0.9);g.fillText('서울특별시교육청 · 초 · 중 · 고 AI 교육 종합계획',W/2,110);
   g.font='900 66px '+FF;
-  const grad=g.createLinearGradient(W*0.14,0,W*0.86,0);
-  grad.addColorStop(0,CY);grad.addColorStop(1,AM);g.fillStyle=grad;
-  const vlines=wrapText(g,VISION,W-280);
-  let vy=222;for(const l of vlines){g.fillText(l,W/2,vy);vy+=86;}
-  g.font='500 30px '+FF;g.fillStyle='rgba(200,216,248,0.72)';
-  g.fillText('2025.12.23 발표 · 5대 추진영역',W/2,vy+16);
+  const grad=g.createLinearGradient(W*0.14,0,W*0.86,0);grad.addColorStop(0,CY);grad.addColorStop(1,AM);g.fillStyle=grad;
+  const vlines=wrapText(g,VISION,W-280);let vy=222;for(const l of vlines){g.fillText(l,W/2,vy);vy+=86;}
+  g.font='500 30px '+FF;g.fillStyle='rgba(200,216,248,0.72)';g.fillText('2025.12.23 발표 · 5대 추진영역',W/2,vy+16);
   g.textAlign='left';
   return c;
 }
-
 function makeHintCanvas(){
   const W=1100,H=150,c=document.createElement('canvas');c.width=W;c.height=H;
   const g=c.getContext('2d');g.clearRect(0,0,W,H);
@@ -211,24 +190,30 @@ function makeHintCanvas(){
   return c;
 }
 
-/* ---------- three 헬퍼 (A-Frame 로드 후 사용) ---------- */
+/* three 헬퍼 (A-Frame 로드 후) */
 function texFromCanvas(c){
   const t=new THREE.CanvasTexture(c);
   if(THREE.SRGBColorSpace) t.colorSpace=THREE.SRGBColorSpace;
   t.anisotropy=8;t.minFilter=THREE.LinearFilter;
   return t;
 }
-function makePlaneEntity(canvas,w,h,clickable){
+/* 위치/회전은 항상 setAttribute 로 지정(안전). pos={x,y,z}, ry=Y회전(도) */
+function addPlane(scene,canvas,w,h,pos,ry,clickable,onReady){
   const mat=new THREE.MeshBasicMaterial({map:texFromCanvas(canvas),transparent:true,side:THREE.DoubleSide,depthWrite:true});
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);
   const el=document.createElement('a-entity');
   if(clickable) el.classList.add('clickable');
-  el.addEventListener('loaded',()=>el.setObject3D('mesh',mesh));
-  el._mesh=mesh;
+  el.setAttribute('position',{x:pos.x,y:pos.y,z:pos.z});
+  if(ry) el.setAttribute('rotation',{x:0,y:ry,z:0});
+  el.addEventListener('loaded',function(){
+    el.setObject3D('mesh',mesh);
+    if(onReady) onReady(el);
+  });
+  scene.appendChild(el);
   return el;
 }
 
-/* ---------- 컴포넌트 등록 ---------- */
+/* 컴포넌트 등록 */
 function registerComponents(){
   AFRAME.registerComponent('starfield',{
     init(){
@@ -245,15 +230,13 @@ function registerComponents(){
     },
     tick(t){if(this.pts)this.pts.rotation.y=t*0.00001;}
   });
-
   AFRAME.registerComponent('pillar',{
     init(){
       this.mesh=this.el.getObject3D('mesh');
       this.home=this.el.object3D.position.clone();
       this.dir=this.home.clone().setY(0).negate().normalize();
       this.phase=Math.random()*Math.PI*2;
-      this.hover=false;this.focus=false;
-      this.off=0;this.scl=1;this.br=1;
+      this.hover=false;this.focus=false;this.off=0;this.scl=1;this.br=1;
       this.el.addEventListener('mouseenter',()=>{this.hover=true;});
       this.el.addEventListener('mouseleave',()=>{this.hover=false;});
       this.el.addEventListener('click',()=>{this.focus=!this.focus;});
@@ -271,12 +254,12 @@ function registerComponents(){
       p.z=this.home.z+this.dir.z*this.off;
       p.y=this.home.y+bob;
       this.el.object3D.scale.setScalar(this.scl);
-      this.mesh.material.color.setScalar(this.br);
+      if(this.mesh) this.mesh.material.color.setScalar(this.br);
     }
   });
 }
 
-/* ---------- 씬 조립 ---------- */
+/* 씬 조립 */
 function buildScene(){
   const scene=document.querySelector('a-scene');
 
@@ -285,13 +268,14 @@ function buildScene(){
   scene.appendChild(stars);
 
   const sky=document.createElement('a-sky');
-  sky.addEventListener('loaded',()=>{
+  sky.addEventListener('loaded',function(){
+    const m=sky.getObject3D('mesh'); if(!m) return;
     const c=document.createElement('canvas');c.width=8;c.height=512;const g=c.getContext('2d');
     const grd=g.createLinearGradient(0,0,0,512);
-    grd.addColorStop(0,'#070b1c');grd.addColorStop(0.55,'#0b1230');
-    grd.addColorStop(0.72,'#132c50');grd.addColorStop(0.82,'#0a1330');grd.addColorStop(1,'#05070f');
+    grd.addColorStop(0,'#0a1030');grd.addColorStop(0.55,'#101a44');
+    grd.addColorStop(0.72,'#1b3a63');grd.addColorStop(0.82,'#0e1a3c');grd.addColorStop(1,'#070b1a');
     g.fillStyle=grd;g.fillRect(0,0,8,512);
-    sky.getObject3D('mesh').material=new THREE.MeshBasicMaterial({map:texFromCanvas(c),side:THREE.BackSide});
+    m.material=new THREE.MeshBasicMaterial({map:texFromCanvas(c),side:THREE.BackSide});
   });
   scene.appendChild(sky);
 
@@ -299,13 +283,14 @@ function buildScene(){
   floor.setAttribute('rotation','-90 0 0');
   floor.setAttribute('width','60');floor.setAttribute('height','60');
   floor.setAttribute('position','0 0 0');
-  floor.addEventListener('loaded',()=>{
+  floor.addEventListener('loaded',function(){
+    const m=floor.getObject3D('mesh'); if(!m) return;
     const c=document.createElement('canvas');c.width=512;c.height=512;const g=c.getContext('2d');
     g.fillStyle='#070b18';g.fillRect(0,0,512,512);
     g.strokeStyle='rgba(56,225,214,0.30)';g.lineWidth=2;
     for(let i=0;i<=512;i+=64){g.beginPath();g.moveTo(i,0);g.lineTo(i,512);g.stroke();g.beginPath();g.moveTo(0,i);g.lineTo(512,i);g.stroke();}
     const t=texFromCanvas(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(24,24);
-    floor.getObject3D('mesh').material=new THREE.MeshBasicMaterial({map:t});
+    m.material=new THREE.MeshBasicMaterial({map:t});
   });
   scene.appendChild(floor);
 
@@ -317,59 +302,49 @@ function buildScene(){
     scene.appendChild(ring);
   });
 
-  const vision=makePlaneEntity(makeVisionCanvas(),6.0,1.95,false);
-  vision.object3D.position.set(0,3.0,-5.4);
-  scene.appendChild(vision);
-
-  const hint=makePlaneEntity(makeHintCanvas(),2.7,0.37,false);
-  hint.object3D.position.set(0,0.62,-3.1);
-  scene.appendChild(hint);
+  addPlane(scene, makeVisionCanvas(), 6.0, 1.95, {x:0,y:3.0,z:-5.4}, 0, false);
+  addPlane(scene, makeHintCanvas(),   2.7, 0.37, {x:0,y:0.62,z:-3.1}, 0, false);
 
   const R=4.7, Y=1.55, angles=[-80,-40,0,40,80];
   PILLARS.forEach(function(cfg,i){
-    const el=makePlaneEntity(makePillarCanvas(cfg),2.6,1.95,true);
     const rad=angles[i]*Math.PI/180;
-    el.object3D.position.set(R*Math.sin(rad),Y,-R*Math.cos(rad));
-    el.object3D.rotation.y=-rad;
-    el.addEventListener('loaded',()=>el.setAttribute('pillar',''));
-    scene.appendChild(el);
+    const pos={x:R*Math.sin(rad), y:Y, z:-R*Math.cos(rad)};
+    const ry=-angles[i];
+    addPlane(scene, makePillarCanvas(cfg), 2.6, 1.95, pos, ry, true, function(el){
+      el.setAttribute('pillar','');
+    });
   });
 }
 
-/* ---------- 부팅: A-Frame 로드 → 컴포넌트 등록 → 폰트 → 씬 ---------- */
+/* 부팅 */
 let started=false;
 async function onReady(){
   if(started) return; started=true;
-  registerComponents();
   try{
-    await Promise.all([
-      document.fonts.load('900 100px "Pretendard"'),
-      document.fonts.load('600 34px "Pretendard"'),
-      document.fonts.load('500 31px "Pretendard"')
-    ]);
-  }catch(e){}
-  try{ await document.fonts.ready; }catch(e){}
-  buildScene();
+    registerComponents();
+    try{
+      await Promise.all([
+        document.fonts.load('900 100px "Pretendard"'),
+        document.fonts.load('600 34px "Pretendard"'),
+        document.fonts.load('500 31px "Pretendard"')
+      ]);
+    }catch(e){}
+    try{ await document.fonts.ready; }catch(e){}
+    buildScene();
+  }catch(err){
+    showDbg('buildScene 실패: '+(err && err.message ? err.message : err));
+  }
 }
 
-/* A-Frame 다중 CDN 폴백 로더 (미리보기=cdnjs, 실서버=제한없음) */
+/* A-Frame 다중 CDN 폴백 로더 */
 const AFRAME_SOURCES=[
-  'https://cdnjs.cloudflare.com/ajax/libs/aframe/1.7.1/aframe.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/aframe/1.7.0/aframe.min.js',
   'https://cdn.jsdelivr.net/npm/[email protected]/dist/aframe-master.min.js',
-  'https://aframe.io/releases/1.8.0/aframe.min.js',
-  'https://aframe.io/releases/1.7.1/aframe.min.js'
+  'https://aframe.io/releases/1.7.1/aframe.min.js',
+  'https://aframe.io/releases/1.7.0/aframe.min.js'
 ];
 function showLoadError(){
-  const intro=document.getElementById('intro');
-  intro.classList.remove('hide');
-  document.getElementById('startBtn').style.display='none';
-  document.getElementById('introBody').innerHTML=
-    '<p class="eyebrow" style="color:#FB7185">라이브러리 로드 실패</p>'+
-    '<h1 class="title" style="background:linear-gradient(100deg,#FB7185,#FBBF24);-webkit-background-clip:text;background-clip:text;color:transparent">미리보기에서 A-Frame을 불러오지 못했습니다</h1>'+
-    '<p class="sub">이 미리보기 창은 외부 스크립트를 제한합니다. 파일을 내려받아 NAS 등 실제 서버(https)에 올리면 정상 동작합니다.</p>';
-  document.getElementById('introNote').innerHTML=
-    '내려받기 후 <em>https</em> 주소로 접속하면 메타 퀘스트3에서 VR 진입까지 정상 동작합니다.';
+  showDbg('A-Frame 로드 실패: 모든 CDN 접근 불가. 네트워크/차단 여부를 확인하세요.');
 }
 function loadAframe(i){
   if(typeof AFRAME!=='undefined'){ onReady(); return; }
@@ -380,7 +355,6 @@ function loadAframe(i){
   s.onerror=function(){ loadAframe(i+1); };
   document.head.appendChild(s);
 }
-
 if(document.readyState==='complete') loadAframe(0);
 else window.addEventListener('load',function(){ loadAframe(0); });
 
