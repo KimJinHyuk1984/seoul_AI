@@ -199,7 +199,7 @@
         <li><b class="n">1</b><span>9개 영역이 <em>원형</em>으로 둘러쌉니다. 화면을 <em>드래그</em>하거나 고개를 돌려 둘러보세요.</span></li>
         <li><b class="n">2</b><span>카드를 <em>선택</em>하면 그 영역의 <em>세부 과제 카드</em>로 들어갑니다.</span></li>
         <li><b class="n">3</b><span>가운데 <em>돌아가기</em>를 선택하면 다시 전체 화면으로 나옵니다.</span></li>
-        <li><b class="n">4</b><span>메타 퀘스트3에서는 오른쪽 아래 <em>고글 아이콘</em>으로 VR 입장.</span></li>
+        <li><b class="n">4</b><span>VR장비에서는 오른쪽 아래 <em>고글 아이콘</em>으로 VR 입장.</span></li>
       </ul>
       <button class="go" id="startBtn" disabled>공간 준비 중…</button>
       <!--<p class="note">HTTPS 필요 · GitHub Pages는 자동 지원. 배포 후 퀘스트3 브라우저로 접속하면 VR로 입장할 수 있어요.</p>-->
@@ -558,7 +558,7 @@
       scene.setAttribute('renderer', 'antialias: true; colorManagement: true; foveationLevel: 1; highRefreshRate: true');
 
       var cam = document.createElement('a-camera'); cam.setAttribute('position', '0 1.6 0'); cam.setAttribute('camera', 'fov: 74'); cam.setAttribute('wasd-controls-enabled', 'false'); cam.setAttribute('look-controls', 'pointerLockEnabled: false');
-      var reticle = document.createElement('a-ring'); reticle.setAttribute('radius-inner', '0.008'); reticle.setAttribute('radius-outer', '0.016'); reticle.setAttribute('position', '0 0 -1'); reticle.setAttribute('material', 'color:#38E1D6; shader:flat; opacity:0.8'); cam.appendChild(reticle); scene.appendChild(cam);
+      scene.appendChild(cam);
 
       var mcur = document.createElement('a-entity'); mcur.setAttribute('cursor', 'rayOrigin: mouse'); mcur.setAttribute('raycaster', 'objects: .clickable; far: 40'); scene.appendChild(mcur);
       [['right', 0.85], ['left', 0.5]].forEach(function (h) { var l = document.createElement('a-entity'); l.setAttribute('laser-controls', 'hand: ' + h[0]); l.setAttribute('raycaster', 'objects: .clickable; far: 40; lineColor: #38E1D6; lineOpacity: ' + h[1]); scene.appendChild(l); });
