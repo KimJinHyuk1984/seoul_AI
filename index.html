@@ -28,6 +28,10 @@
   #dbg{position:fixed;left:10px;right:10px;bottom:10px;z-index:10000;display:none;background:rgba(120,20,30,.94);color:#fff;font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,120,130,.6);font-family:ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;max-height:38vh;overflow:auto;}
   #introLogo{display:inline-block;height:34px;padding:8px 14px;margin:0 0 18px;background:#fff;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
   #warp{position:fixed;inset:0;z-index:10001;display:none;pointer-events:none;background:#03040a;}
+  #fsBtn{position:fixed;right:16px;bottom:16px;z-index:10002;width:48px;height:48px;border-radius:12px;border:1px solid rgba(56,225,214,.5);background:rgba(10,16,32,.72);color:#38E1D6;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.35);transition:background .15s,transform .12s;}
+  #fsBtn:hover{background:rgba(20,30,55,.9);transform:translateY(-1px);}
+  #fsBtn svg{width:24px;height:24px;display:block;}
+  .a-enter-vr,.a-enter-ar,.a-enter-vr-button,.a-enter-ar-button,.a-orientation-modal{display:none !important;}
 </style>
 </head>
 <body>
@@ -47,6 +51,7 @@
   </div></div>
   <div id="dbg"></div>
   <canvas id="warp"></canvas>
+  <button id="fsBtn" title="전체화면" aria-label="전체화면"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg></button>
 
 <script>
 function showDbg(m){var d=document.getElementById('dbg');if(!d)return;d.style.display='block';d.textContent='[오류] '+m;}
@@ -375,7 +380,7 @@ function buildScene(){
   var scene=document.createElement('a-scene');
   scene.setAttribute('background','color: #05070f');
   scene.setAttribute('fog','type: linear; color: #060a18; near: 12; far: 40');
-  scene.setAttribute('vr-mode-ui','enabled: true');
+  scene.setAttribute('vr-mode-ui','enabled: false');
   scene.setAttribute('loading-screen','enabled: false');
   scene.setAttribute('webxr','optionalFeatures: hand-tracking, local-floor');
   scene.setAttribute('renderer','antialias: true; colorManagement: true; foveationLevel: 1; highRefreshRate: true');
@@ -446,19 +451,8 @@ function runWarp(done){
 }
 document.getElementById('startBtn').addEventListener('click',function(){if(!sceneBuilt)return;document.getElementById('intro').classList.add('hide');warpSound();runWarp();});
 
-/* 오른쪽 하단 VR 버튼 → 문서 전체 전체화면만 (인트로/들어가기 버튼 유지) */
-document.addEventListener('click',function(e){
-  var btn=(e.target&&e.target.closest)?e.target.closest('.a-enter-vr-button'):null;
-  if(!btn)return;
-  e.preventDefault();e.stopImmediatePropagation();
-  try{
-    if(!(document.fullscreenElement||document.webkitFullscreenElement)){
-      var el=document.documentElement;
-      var rf=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
-      if(rf)rf.call(el);
-    }
-  }catch(err){}
-},true);
+/* 오른쪽 하단 버튼 → 현재 페이지 전체를 전체화면(인트로/시작 버튼 그대로 유지) */
+(function(){var b=document.getElementById('fsBtn');if(!b)return;b.addEventListener('click',function(){try{var d=document,el=d.documentElement,fs=d.fullscreenElement||d.webkitFullscreenElement;if(fs){(d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen).call(d);}else{(el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen).call(el);}}catch(e){}});})();
 </script>
 </body>
 </html>
