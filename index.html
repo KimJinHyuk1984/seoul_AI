@@ -31,9 +31,6 @@
   #fsBtn{position:fixed;right:16px;bottom:16px;z-index:10002;width:48px;height:48px;border-radius:12px;border:1px solid rgba(56,225,214,.5);background:rgba(10,16,32,.72);color:#38E1D6;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.35);transition:background .15s,transform .12s;}
   #fsBtn:hover{background:rgba(20,30,55,.9);transform:translateY(-1px);}
   #fsBtn svg{width:24px;height:24px;display:block;}
-  #rfBtn{position:fixed;right:76px;bottom:16px;z-index:10002;width:48px;height:48px;border-radius:12px;border:1px solid rgba(56,225,214,.5);background:rgba(10,16,32,.72);color:#38E1D6;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.35);transition:background .15s,transform .12s;}
-  #rfBtn:hover{background:rgba(20,30,55,.9);transform:translateY(-1px);}
-  #rfBtn svg{width:24px;height:24px;display:block;}
   .a-enter-vr,.a-enter-ar,.a-enter-vr-button,.a-enter-ar-button,.a-orientation-modal{display:none !important;}
 </style>
 </head>
@@ -55,7 +52,6 @@
   <div id="dbg"></div>
   <canvas id="warp"></canvas>
   <button id="fsBtn" title="전체화면" aria-label="전체화면"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg></button>
-  <button id="rfBtn" title="새로고침" aria-label="새로고침"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
 
 <script>
 function showDbg(m){var d=document.getElementById('dbg');if(!d)return;d.style.display='block';d.textContent='[오류] '+m;}
@@ -363,7 +359,10 @@ var Nav={
     /* 상단: 그룹 대표 문구 + 가운데 로고 */
     this.add(this.ov, makeGroupHeader('초·중·고 AI 교육 종합계획','누구나! 안전하고 이롭게! AI 시대의 주인으로', CY), 2.9,0.83, P(-40,2.98,5.3), 40, false,false,null);
     this.add(this.ov, makeGroupHeader('정보교육 중장기 발전계획','디지털 소양과 컴퓨팅 사고력을 키우는 정보교육', AM), 2.9,0.83, P(50,2.98,5.3), -50, false,false,null);
-    var logo=makeLogo(LOGO_V,1.35,520/589);logo.setAttribute('position',P(4,3.05,5.15));this.ov.appendChild(logo);
+    var logo=makeLogo(LOGO_V,1.35,520/589);logo.classList.add('clickable');logo.setAttribute('position',P(4,3.05,5.15));
+    logo.addEventListener('loaded',function(){logo.setAttribute('card','');});
+    logo.addEventListener('click',function(){try{location.reload();}catch(e){}});
+    this.ov.appendChild(logo);
     /* 안내 */
     this.add(this.ov, makeHint('카드를 선택하면 세부 과제로 · 좌우로 둘러보세요'),3.2,0.37, {x:0,y:0.45,z:-3.0},0,false,false,null);
   },
@@ -464,9 +463,6 @@ document.getElementById('startBtn').addEventListener('click',function(){if(!scen
 
 /* 오른쪽 하단 버튼 → 현재 페이지 전체를 전체화면(인트로/시작 버튼 그대로 유지) */
 (function(){var b=document.getElementById('fsBtn');if(!b)return;b.addEventListener('click',function(){try{var d=document,el=d.documentElement,fs=d.fullscreenElement||d.webkitFullscreenElement;if(fs){(d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen).call(d);}else{(el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen).call(el);}}catch(e){}});})();
-
-/* 오른쪽 하단 새로고침 버튼 → 페이지 다시 불러오기 */
-(function(){var b=document.getElementById('rfBtn');if(!b)return;b.addEventListener('click',function(){try{location.reload();}catch(e){}});})();
 </script>
 </body>
 </html>
