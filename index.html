@@ -380,7 +380,7 @@ function buildScene(){
   var scene=document.createElement('a-scene');
   scene.setAttribute('background','color: #05070f');
   scene.setAttribute('fog','type: linear; color: #060a18; near: 12; far: 40');
-  scene.setAttribute('vr-mode-ui','enabled: false');
+  scene.setAttribute('vr-mode-ui','enabled: true');
   scene.setAttribute('loading-screen','enabled: false');
   scene.setAttribute('webxr','optionalFeatures: hand-tracking, local-floor');
   scene.setAttribute('renderer','antialias: true; colorManagement: true; foveationLevel: 1; highRefreshRate: true');
@@ -402,6 +402,13 @@ function buildScene(){
 
   Nav.mount(scene);
   camEl=cam;
+  scene.addEventListener('enter-vr',function(){
+    var intro=document.getElementById('intro');if(intro)intro.classList.add('hide');
+    try{warpSound();}catch(e){}
+    try{ if(Nav.ov)Nav.ov.setAttribute('visible','false'); if(Nav.dt)Nav.dt.setAttribute('visible','false'); }catch(e){}
+    try{ if(camEl){camEl.removeAttribute('warp3d');camEl.setAttribute('warp3d','');} }catch(e){}
+    setTimeout(function(){ try{ if(Nav.ov)Nav.ov.setAttribute('visible','true'); if(Nav.dt)Nav.dt.setAttribute('visible','true'); }catch(e){} }, 2350);
+  });
   document.body.appendChild(scene);
 }
 
