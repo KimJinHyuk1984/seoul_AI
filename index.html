@@ -93,7 +93,7 @@ var AREAS=[
  {src:'AI 교육 종합계획', tag:'배움에 중심을 두는\n지원 체제 및 환경 구축', color:'#2DD4BF', title:'AI맞춤형 교수학습 플랫폼(SEN스쿨) 운영,\n데이터 기반 교육환경 구축', subtitle:'배움에 중심을 두는',
   details:[
    {t:'5-1 인적·물리적 환경 구축', pts:['유무선 네트워크 구축','스마트기기(디벗) 보급 지원','디지털튜터 배치','에듀테크 소프트랩 실증']},
-   {t:'5-2 SEN스쿨 플랫폼 운영', pts:['SEN스쿨 기반 미래교육 강화','데이터 기반 AI 모델·생태계 고도화']},
+   {t:'5-2 SEN스쿨 플랫폼 운영', video:'./videos/1.mp4', pts:['SEN스쿨 기반 미래교육 강화','데이터 기반 AI 모델·생태계 고도화']},
    {t:'5-3 정보보호·보안 강화', pts:['체계적 정보보호 환경 조성','개인정보 처리·유출 예방']},
    {t:'5-4 학부모 역량·협력 문화', pts:['학부모 AI·디지털 역량 강화','기술 체험으로 인식 제고']}]},
  {src:'정보교육 중장기', tag:'지속 가능한\nAI·정보교육 체계 구축', color:'#FBBF24', title:'교육 연계 강화,\nAI 중점학교 확대,\n미래형 지원체계 구축', subtitle:'지속 가능한 AI·정보교육',
@@ -179,6 +179,7 @@ function makeDetailCanvas(d,color){
   g.strokeStyle=hexA(color,0.5);g.lineWidth=2;g.beginPath();g.moveTo(66,y);g.lineTo(W-66,y);g.stroke();
   y+=64;g.font='500 34px '+FF;var lh=48,gap=26,mw=W-66-80;
   for(var k=0;k<d.pts.length;k++){g.fillStyle=color;g.beginPath();g.arc(84,y-12,8,0,Math.PI*2);g.fill();g.fillStyle='rgba(228,238,255,0.96)';var ls=wrap(g,d.pts[k],mw);for(var m=0;m<ls.length;m++){g.fillText(ls[m],116,y+m*lh);}y+=ls.length*lh+gap;}
+  if(d.video){var pw=360,ph=64,px=(W-pw)/2,py2=H-98;rr(g,px,py2,pw,ph,ph/2);g.fillStyle=hexA(color,0.2);g.fill();g.lineWidth=2;g.strokeStyle=color;g.stroke();g.fillStyle=color;g.beginPath();g.moveTo(px+44,py2+ph/2-14);g.lineTo(px+44,py2+ph/2+14);g.lineTo(px+44+24,py2+ph/2);g.closePath();g.fill();g.font='700 30px '+FF;g.fillStyle='#EAF2FF';g.textAlign='left';g.textBaseline='middle';g.fillText('영상 재생',px+86,py2+ph/2+1);g.textBaseline='alphabetic';}
   return c;
 }
 function makeOverviewBanner(){
@@ -365,7 +366,7 @@ var Nav={
     gr.appendChild(el);return el;
   },
   showOverview:function(){
-    var self=this;this.mode='overview';this.clear(this.dt);this.clear(this.ov);
+    var self=this;this.mode='overview';try{VideoScreen.hide();}catch(e){}this.clear(this.dt);this.clear(this.ov);
     var R=4.5, Y=1.5;
     function P(az,y,r){var d=az*Math.PI/180;r=r||R;return {x:r*Math.sin(d), y:y, z:-r*Math.cos(d)};}
     /* 사용자를 감싸는 곡면 아크: 왼쪽 5개(AI 종합계획) + 오른쪽 4개(정보 중장기), 각 카드는 사용자를 향함 */
@@ -383,17 +384,17 @@ var Nav={
     this.add(this.ov, makeHint('카드를 선택하면 세부 과제로 · 좌우로 둘러보세요'),3.2,0.37, {x:0,y:0.45,z:-3.0},0,false,false,null);
   },
   openDetail:function(i){
-    var self=this,a=AREAS[i];this.mode='detail';this.clear(this.ov);this.clear(this.dt);
+    var self=this,a=AREAS[i];this.mode='detail';try{VideoScreen.hide();}catch(e){}this.clear(this.ov);this.clear(this.dt);
     this.add(this.dt,makeDetailBanner(a),6.2,1.4,{x:0,y:3.7,z:-5.4},0,false,false,null);
     this.add(this.dt,makeBack(),2.0,0.63,{x:0,y:0.72,z:-3.0},0,true,true,function(){if(self.mode!=='detail')return;self.showOverview();});
     var D=a.details.length,R=4.8,Y=1.62,step=40,start=-(D-1)/2*step;
     a.details.forEach(function(d,j){
       var ang=start+j*step,rad=ang*Math.PI/180;
-      self.add(self.dt,makeDetailCanvas(d,a.color),2.5,1.875,{x:R*Math.sin(rad),y:Y,z:-R*Math.cos(rad)},-ang,true,true,null);
+      self.add(self.dt,makeDetailCanvas(d,a.color),2.5,1.875,{x:R*Math.sin(rad),y:Y,z:-R*Math.cos(rad)},-ang,true,true, (d.video?(function(u){return function(){try{VideoScreen.toggle(u);}catch(e){}};})(d.video):null));
     });
   },
   showStart:function(){
-    var self=this;this.mode='start';this.clear(this.dt);this.clear(this.ov);this.clear(this.sg);
+    var self=this;this.mode='start';try{VideoScreen.hide();}catch(e){}this.clear(this.dt);this.clear(this.ov);this.clear(this.sg);
     var logo=makeLogo(LOGO_V,1.1,520/589);logo.setAttribute('position',{x:0,y:2.78,z:-4.0});this.sg.appendChild(logo);
     this.add(this.sg, makeStartCanvas(), 3.3,2.12, {x:0,y:1.32,z:-3.9}, 0, true,true, function(){self.doStart();});
   },
@@ -409,6 +410,33 @@ var Nav={
     try{var intro=document.getElementById('intro');if(intro)intro.classList.remove('hide');}catch(e){}
     this.showStart();
   }
+};
+
+/* ---------- 영상 스크린 ---------- */
+var VideoScreen={
+  screen:null,frame:null,cap:null,capMesh:null,video:null,tex:null,current:null,visible:false,
+  mount:function(scene){
+    var self=this;
+    var v=document.createElement('video');v.crossOrigin='anonymous';v.setAttribute('crossorigin','anonymous');v.setAttribute('playsinline','');v.playsInline=true;v.loop=true;v.preload='auto';v.style.display='none';document.body.appendChild(v);this.video=v;
+    v.addEventListener('error',function(){self.status('영상을 불러올 수 없습니다 (경로/형식 확인)');});
+    v.addEventListener('playing',function(){self.status('화면을 선택하면 닫힙니다');});
+    v.addEventListener('waiting',function(){self.status('버퍼링 중…');});
+    var frame=document.createElement('a-plane');frame.setAttribute('width',5.02);frame.setAttribute('height',2.9);frame.setAttribute('position','0 2.15 -3.71');frame.setAttribute('material','color:'+CY+'; shader:flat; opacity:0.9; side:double');frame.setAttribute('visible','false');this.frame=frame;scene.appendChild(frame);
+    this.tex=new THREE.VideoTexture(v);if(THREE.SRGBColorSpace)this.tex.colorSpace=THREE.SRGBColorSpace;this.tex.minFilter=THREE.LinearFilter;
+    var smesh=new THREE.Mesh(new THREE.PlaneGeometry(4.86,2.74),new THREE.MeshBasicMaterial({map:this.tex,color:0xffffff,side:THREE.DoubleSide,toneMapped:false}));
+    var screen=document.createElement('a-entity');screen.classList.add('clickable');screen.setAttribute('position','0 2.15 60');screen.setAttribute('visible','false');
+    screen.addEventListener('loaded',function(){screen.setObject3D('mesh',smesh);});
+    screen.addEventListener('click',function(){self.hide();});
+    this.screen=screen;scene.appendChild(screen);
+    this.capMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.6,0.42),new THREE.MeshBasicMaterial({map:tex(makeHint('화면을 선택하면 닫힙니다')),transparent:true,side:THREE.DoubleSide}));
+    var cap=document.createElement('a-entity');cap.setAttribute('position','0 0.6 -3.68');cap.setAttribute('visible','false');
+    cap.addEventListener('loaded',function(){cap.setObject3D('mesh',self.capMesh);});
+    this.cap=cap;scene.appendChild(cap);
+  },
+  status:function(text){if(this.capMesh){this.capMesh.material.map=tex(makeHint(text||'화면을 선택하면 닫힙니다'));this.capMesh.material.needsUpdate=true;}},
+  toggle:function(url){var self=this;if(this.visible&&this.current===url){this.hide();return;}this.current=url;if(this.video.getAttribute('src')!==url){this.video.setAttribute('src',url);}this.show();this.status('영상 불러오는 중…');var p=this.video.play();if(p&&p.catch){p.catch(function(){self.video.muted=true;self.video.play().catch(function(){self.status('자동재생 차단 — 화면을 한 번 더 선택하세요.');});});}},
+  show:function(){this.visible=true;this.screen.setAttribute('position','0 2.15 -3.70');this.screen.setAttribute('visible','true');this.frame.setAttribute('visible','true');this.cap.setAttribute('visible','true');},
+  hide:function(){this.visible=false;if(this.screen){this.screen.setAttribute('visible','false');this.screen.setAttribute('position','0 2.15 60');}if(this.frame)this.frame.setAttribute('visible','false');if(this.cap)this.cap.setAttribute('visible','false');try{this.video.pause();}catch(e){}}
 };
 
 /* ---------- 씬 ---------- */
@@ -438,6 +466,7 @@ function buildScene(){
 
   Nav.mount(scene);
   camEl=cam;
+  try{VideoScreen.mount(scene);}catch(e){}
   document.body.appendChild(scene);
 }
 
