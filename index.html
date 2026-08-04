@@ -215,6 +215,22 @@ function makeHint(text){
   rr(g,8,30,W-16,H-60,34);g.fillStyle='rgba(10,16,32,0.7)';g.fill();g.lineWidth=1.5;g.strokeStyle=hexA(CY,0.4);g.stroke();
   g.textAlign='center';g.textBaseline='middle';g.font='600 30px '+FF;g.fillStyle=hexA(CY,0.92);g.fillText(text,W/2,H/2);g.textAlign='left';return c;
 }
+function makeStartCanvas(){
+  var W=1400,H=900,c=document.createElement('canvas');c.width=W;c.height=H;var g=c.getContext('2d');g.clearRect(0,0,W,H);
+  var pad=26,r=46;
+  rr(g,pad,pad,W-2*pad,H-2*pad,r);var bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'rgba(14,20,42,0.94)');bg.addColorStop(1,'rgba(8,12,26,0.96)');g.fillStyle=bg;g.fill();
+  g.save();rr(g,pad,pad,W-2*pad,H-2*pad,r);g.clip();var gl=g.createRadialGradient(W/2,pad,20,W/2,pad,720);gl.addColorStop(0,'rgba(56,225,214,0.18)');gl.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gl;g.fillRect(0,0,W,H);g.restore();
+  g.save();g.shadowColor=CY;g.shadowBlur=34;rr(g,pad,pad,W-2*pad,H-2*pad,r);g.lineWidth=4;g.strokeStyle=hexA(CY,0.85);g.stroke();g.restore();
+  g.textAlign='center';g.textBaseline='alphabetic';
+  g.font='600 34px '+FF;g.fillStyle=hexA(CY,0.9);g.fillText('서울특별시교육청 · SEOUL AI·SW EDUCATION',W/2,152);
+  g.font='900 88px '+FF;var grd=g.createLinearGradient(W*0.15,0,W*0.85,0);grd.addColorStop(0,CY);grd.addColorStop(1,AM);g.fillStyle=grd;g.fillText('AI · 정보교육 종합 추진 지도',W/2,292);
+  g.font='500 36px '+FF;g.fillStyle='rgba(206,220,250,0.85)';g.fillText('초·중·고 AI 교육 종합계획 · 정보교육 중장기 발전계획',W/2,372);
+  g.font='500 32px '+FF;g.fillStyle='rgba(150,170,210,0.75)';g.fillText('9개 영역을 가상 공간에서 둘러봅니다',W/2,434);
+  var bw=780,bh=142,bx=(W-bw)/2,by=H-262;
+  rr(g,bx,by,bw,bh,bh/2);var bgrad=g.createLinearGradient(bx,0,bx+bw,0);bgrad.addColorStop(0,'#38E1D6');bgrad.addColorStop(1,'#7fe9df');g.fillStyle=bgrad;g.fill();
+  g.font='800 54px '+FF;g.fillStyle='#04121a';g.textBaseline='middle';g.fillText('▶  공간 둘러보기 시작',W/2,by+bh/2+2);g.textBaseline='alphabetic';
+  g.textAlign='left';return c;
+}
 
 /* ---------- three 헬퍼 ---------- */
 function tex(c){var t=new THREE.CanvasTexture(c);if(THREE.SRGBColorSpace)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;t.minFilter=THREE.LinearFilter;return t;}
@@ -337,8 +353,8 @@ function registerComponents(){
 
 /* ---------- 2단계 내비게이션 ---------- */
 var Nav={
-  scene:null, ov:null, dt:null, mode:'overview',
-  mount:function(scene){this.scene=scene;this.ov=document.createElement('a-entity');scene.appendChild(this.ov);this.dt=document.createElement('a-entity');scene.appendChild(this.dt);this.showOverview();},
+  scene:null, ov:null, dt:null, sg:null, mode:'overview',
+  mount:function(scene){this.scene=scene;this.ov=document.createElement('a-entity');scene.appendChild(this.ov);this.dt=document.createElement('a-entity');scene.appendChild(this.dt);this.sg=document.createElement('a-entity');scene.appendChild(this.sg);this.showStart();},
   clear:function(gr){while(gr.firstChild){gr.removeChild(gr.firstChild);}},
   add:function(gr,canvas,w,h,pos,ry,clickable,useCard,onClick){
     var el=makeCard(canvas,w,h,clickable);
@@ -361,7 +377,7 @@ var Nav={
     this.add(this.ov, makeGroupHeader('정보교육 중장기 발전계획','디지털 소양과 컴퓨팅 사고력을 키우는 정보교육', AM), 2.9,0.83, P(50,2.98,5.3), -50, false,false,null);
     var logo=makeLogo(LOGO_V,1.35,520/589);logo.classList.add('clickable');logo.setAttribute('position',P(4,3.05,5.15));
     logo.addEventListener('loaded',function(){logo.setAttribute('card','');});
-    logo.addEventListener('click',function(){try{var intro=document.getElementById('intro');if(intro)intro.classList.remove('hide');}catch(e){}});
+    logo.addEventListener('click',function(){Nav.doReset();});
     this.ov.appendChild(logo);
     /* 안내 */
     this.add(this.ov, makeHint('카드를 선택하면 세부 과제로 · 좌우로 둘러보세요'),3.2,0.37, {x:0,y:0.45,z:-3.0},0,false,false,null);
@@ -375,6 +391,23 @@ var Nav={
       var ang=start+j*step,rad=ang*Math.PI/180;
       self.add(self.dt,makeDetailCanvas(d,a.color),2.5,1.875,{x:R*Math.sin(rad),y:Y,z:-R*Math.cos(rad)},-ang,true,true,null);
     });
+  },
+  showStart:function(){
+    var self=this;this.mode='start';this.clear(this.dt);this.clear(this.ov);this.clear(this.sg);
+    var logo=makeLogo(LOGO_V,1.1,520/589);logo.setAttribute('position',{x:0,y:2.78,z:-4.0});this.sg.appendChild(logo);
+    this.add(this.sg, makeStartCanvas(), 3.3,2.12, {x:0,y:1.32,z:-3.9}, 0, true,true, function(){self.doStart();});
+  },
+  doStart:function(){
+    var self=this;
+    try{var intro=document.getElementById('intro');if(intro)intro.classList.add('hide');}catch(e){}
+    this.clear(this.sg);
+    try{warpSound();}catch(e){}
+    try{ if(camEl){camEl.removeAttribute('warp3d');camEl.setAttribute('warp3d','');} }catch(e){}
+    setTimeout(function(){ self.showOverview(); }, 2300);
+  },
+  doReset:function(){
+    try{var intro=document.getElementById('intro');if(intro)intro.classList.remove('hide');}catch(e){}
+    this.showStart();
   }
 };
 
@@ -405,13 +438,6 @@ function buildScene(){
 
   Nav.mount(scene);
   camEl=cam;
-  scene.addEventListener('enter-vr',function(){
-    var intro=document.getElementById('intro');if(intro)intro.classList.add('hide');
-    try{warpSound();}catch(e){}
-    try{ if(Nav.ov)Nav.ov.setAttribute('visible','false'); if(Nav.dt)Nav.dt.setAttribute('visible','false'); }catch(e){}
-    try{ if(camEl){camEl.removeAttribute('warp3d');camEl.setAttribute('warp3d','');} }catch(e){}
-    setTimeout(function(){ try{ if(Nav.ov)Nav.ov.setAttribute('visible','true'); if(Nav.dt)Nav.dt.setAttribute('visible','true'); }catch(e){} }, 2350);
-  });
   document.body.appendChild(scene);
 }
 
@@ -459,7 +485,7 @@ function runWarp(done){
   }
   requestAnimationFrame(frame);
 }
-document.getElementById('startBtn').addEventListener('click',function(){if(!sceneBuilt)return;document.getElementById('intro').classList.add('hide');warpSound();runWarp();});
+document.getElementById('startBtn').addEventListener('click',function(){if(!sceneBuilt)return;Nav.doStart();});
 
 /* 오른쪽 하단 버튼 → 현재 페이지 전체를 전체화면(인트로/시작 버튼 그대로 유지) */
 (function(){var b=document.getElementById('fsBtn');if(!b)return;b.addEventListener('click',function(){try{var d=document,el=d.documentElement,fs=d.fullscreenElement||d.webkitFullscreenElement;if(fs){(d.exitFullscreen||d.webkitExitFullscreen||d.msExitFullscreen).call(d);}else{(el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen).call(el);}}catch(e){}});})();
