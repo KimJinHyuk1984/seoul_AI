@@ -361,7 +361,7 @@ var Nav={
     this.add(this.ov, makeGroupHeader('정보교육 중장기 발전계획','디지털 소양과 컴퓨팅 사고력을 키우는 정보교육', AM), 2.9,0.83, P(50,2.98,5.3), -50, false,false,null);
     var logo=makeLogo(LOGO_V,1.35,520/589);logo.classList.add('clickable');logo.setAttribute('position',P(4,3.05,5.15));
     logo.addEventListener('loaded',function(){logo.setAttribute('card','');});
-    logo.addEventListener('click',function(){try{location.reload();}catch(e){}});
+    logo.addEventListener('click',function(){try{var intro=document.getElementById('intro');if(intro)intro.classList.remove('hide');}catch(e){}});
     this.ov.appendChild(logo);
     /* 안내 */
     this.add(this.ov, makeHint('카드를 선택하면 세부 과제로 · 좌우로 둘러보세요'),3.2,0.37, {x:0,y:0.45,z:-3.0},0,false,false,null);
